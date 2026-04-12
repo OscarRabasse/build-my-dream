@@ -104,19 +104,19 @@ const AsciiBg = () => {
       const probe = document.createElement("span");
       probe.textContent = "M".repeat(200);
       probe.style.cssText = "position:absolute;left:-9999px;top:-9999px;white-space:pre;pointer-events:none;visibility:hidden";
-      const cs = getComputedStyle(pre);
+      const cs = getComputedStyle(pre!);
       probe.style.font = cs.font;
       probe.style.letterSpacing = cs.letterSpacing;
-      host.appendChild(probe);
+      host!.appendChild(probe);
       const totalW = probe.getBoundingClientRect().width;
-      host.removeChild(probe);
+      host!.removeChild(probe);
       return { cw: totalW / 200 || 8, lh: parseFloat(cs.lineHeight) || 14 };
     }
 
     function computeGrid() {
       const m = measureCell();
       cellW = m.cw; cellH = m.lh;
-      const rect = host.getBoundingClientRect();
+      const rect = host!.getBoundingClientRect();
       const c = Math.max(1, Math.floor(rect.width / cellW - SAFE_CHAR_PAD_X));
       const r = Math.max(1, Math.floor(rect.height / cellH - SAFE_CHAR_PAD_Y));
       if (c === cols && r === rows) return;
@@ -207,7 +207,7 @@ const AsciiBg = () => {
     }
 
     function eventToCell(ev: MouseEvent | TouchEvent) {
-      const rect = pre.getBoundingClientRect();
+      const rect = pre!.getBoundingClientRect();
       const touch = 'touches' in ev ? ev.touches[0] : ev;
       let cx = Math.floor((touch.clientX - rect.left) / cellW);
       let cy = Math.floor((touch.clientY - rect.top) / cellH);
@@ -275,7 +275,7 @@ const AsciiBg = () => {
         }
         if (y < rows - 1) out += "\n";
       }
-      pre.textContent = out;
+      pre!.textContent = out;
       rafId = requestAnimationFrame(render);
     }
 

@@ -196,8 +196,8 @@ const ElectricBorder = ({
         const progress = i / sampleCount;
         const point = getRoundedRectPoint(progress, left, top, borderWidth, borderHeight, effectiveRadius);
 
-        const xNoise = octavedNoise(progress * 8, octaves, lacunarity, gain, amplitude, frequency, timeRef.current, 0, baseFlatness);
-        const yNoise = octavedNoise(progress * 8, octaves, lacunarity, gain, amplitude, frequency, timeRef.current, 1, baseFlatness);
+        const xNoise = octavedNoise(progress * 8, 0, octaves, lacunarity, gain, amplitude, frequency, timeRef.current, 0, baseFlatness);
+        const yNoise = octavedNoise(progress * 8, 0, octaves, lacunarity, gain, amplitude, frequency, timeRef.current, 1, baseFlatness);
 
         const displacedX = point.x + xNoise * scale;
         const displacedY = point.y + yNoise * scale;
