@@ -8,19 +8,13 @@ const STATUS_ICON: Record<string, string> = {
 
 export function ResultCard({ check }: { check: CheckResult }) {
   return (
-    <div
-      style={{
-        border: "1px solid #ccc",
-        padding: 16,
-        marginBottom: 12,
-      }}
-    >
-      <p style={{ margin: 0, fontWeight: "bold" }}>
+    <div className="frosted-surface rounded-xl p-5 blue-glow-ring">
+      <p className="font-semibold text-foreground">
         {STATUS_ICON[check.status]} {check.name}
       </p>
-      <p style={{ margin: "8px 0 4px", fontSize: 14 }}>{check.explanation}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{check.explanation}</p>
       {check.status !== "green" && (
-        <p style={{ margin: 0, fontSize: 13, fontStyle: "italic" }}>
+        <p className="mt-1 text-sm italic text-primary/80">
           💡 {check.fix}
         </p>
       )}

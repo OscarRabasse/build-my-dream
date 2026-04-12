@@ -9,47 +9,38 @@ interface ResultPageProps {
 
 export function ResultPage({ result, onReset }: ResultPageProps) {
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <p style={{ fontSize: 13, wordBreak: "break-all" }}>
+    <div className="max-w-2xl mx-auto">
+      <p className="text-sm text-muted-foreground break-all mb-6">
         URL analysée : {result.url}
       </p>
 
-      <div style={{ textAlign: "center", margin: "24px 0" }}>
-        <p style={{ fontSize: 64, fontWeight: "bold", margin: 0 }}>
+      <div className="text-center my-8">
+        <p className="text-7xl font-bold font-display text-display text-primary">
           {result.score}
-          <span style={{ fontSize: 24 }}>/100</span>
+          <span className="text-2xl text-muted-foreground">/100</span>
         </p>
-        <p style={{ fontSize: 18, marginTop: 4 }}>{result.verdict}</p>
+        <p className="text-lg text-foreground mt-2">{result.verdict}</p>
       </div>
 
-      <div
-        style={{
-          border: "1px solid #ccc",
-          padding: 16,
-          marginBottom: 24,
-          fontStyle: "italic",
-        }}
-      >
-        {result.synthesis}
+      <div className="frosted-surface rounded-xl p-6 mb-8 elevated-card">
+        <p className="italic text-muted-foreground leading-relaxed">{result.synthesis}</p>
       </div>
 
-      <h2 style={{ fontSize: 20, marginBottom: 12 }}>Détail des 5 checks</h2>
-      {result.checks.map((check, i) => (
-        <ResultCard key={i} check={check} />
-      ))}
+      <h2 className="text-xl font-display font-semibold text-foreground mb-4">
+        Détail des 5 checks
+      </h2>
+      <div className="space-y-3">
+        {result.checks.map((check, i) => (
+          <ResultCard key={i} check={check} />
+        ))}
+      </div>
 
       <CtaPixweb />
 
-      <div style={{ textAlign: "center", marginTop: 24 }}>
+      <div className="text-center mt-8 mb-12">
         <button
           onClick={onReset}
-          style={{
-            padding: "10px 24px",
-            fontSize: 16,
-            cursor: "pointer",
-            border: "1px solid #333",
-            background: "#eee",
-          }}
+          className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-secondary transition-colors"
         >
           Analyser un autre site
         </button>

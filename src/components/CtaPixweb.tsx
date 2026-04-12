@@ -1,32 +1,17 @@
 export function CtaPixweb() {
   return (
-    <div
-      style={{
-        border: "1px solid #999",
-        padding: 24,
-        marginTop: 32,
-        textAlign: "center",
-      }}
-    >
-      <p style={{ fontSize: 18, fontWeight: "bold", margin: "0 0 8px" }}>
+    <div className="frosted-surface rounded-xl p-8 mt-10 text-center elevated-card">
+      <p className="text-lg font-display font-semibold text-foreground mb-2">
         Votre site mérite d'être vu — par les humains comme par les IA
       </p>
-      <p style={{ margin: "0 0 16px", fontSize: 14 }}>
+      <p className="text-sm text-muted-foreground mb-5">
         Pixweb crée des sites WordPress qui convertissent. Livrés en 6 semaines.
       </p>
       <a
         href="https://pixweb.fr"
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          display: "inline-block",
-          padding: "10px 24px",
-          border: "1px solid #333",
-          background: "#eee",
-          textDecoration: "none",
-          color: "#333",
-          fontSize: 16,
-        }}
+        className="inline-block px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
       >
         Découvrir Pixweb
       </a>

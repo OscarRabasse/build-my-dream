@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ElectricBorder from "./ElectricBorder";
 
 interface UrlFormProps {
   onSubmit: (url: string) => void;
@@ -31,38 +32,31 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://monsite.fr"
-          disabled={disabled}
-          style={{
-            flex: 1,
-            padding: "8px 12px",
-            fontSize: 16,
-            border: "1px solid #999",
-          }}
-        />
-        <button
-          type="submit"
-          disabled={disabled}
-          style={{
-            padding: "8px 20px",
-            fontSize: 16,
-            cursor: disabled ? "not-allowed" : "pointer",
-            border: "1px solid #333",
-            background: "#eee",
-          }}
-        >
-          Analyser mon site
-        </button>
-      </div>
-      {error && (
-        <p style={{ color: "red", marginTop: 8, fontSize: 14 }}>{error}</p>
-      )}
-    </form>
+    <div className="max-w-xl mx-auto">
+      <ElectricBorder color="#0099ff" borderRadius={16} chaos={0.08}>
+        <form onSubmit={handleSubmit} className="frosted-surface rounded-2xl p-6">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://monsite.fr"
+              disabled={disabled}
+              className="flex-1 px-4 py-3 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-ring text-base"
+            />
+            <button
+              type="submit"
+              disabled={disabled}
+              className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              Analyser
+            </button>
+          </div>
+          {error && (
+            <p className="text-destructive mt-3 text-sm">{error}</p>
+          )}
+        </form>
+      </ElectricBorder>
+    </div>
   );
 }
