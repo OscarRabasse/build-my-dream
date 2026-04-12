@@ -6,6 +6,8 @@ import type { AnalysisResult } from "@/lib/types";
 import { UrlForm } from "@/components/UrlForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ResultPage } from "@/components/ResultPage";
+import AsciiBg from "@/components/AsciiBg";
+import { LaserFlow } from "@/components/LaserFlow";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -55,40 +57,50 @@ function Index() {
   }
 
   return (
-    <div style={{ padding: "40px 16px", fontFamily: "sans-serif" }}>
-      {(state === "idle" || state === "error") && (
-        <>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <h1 style={{ fontSize: 28, marginBottom: 8 }}>
-              Votre site est-il lisible par les IA ?
-            </h1>
-            <p style={{ fontSize: 16, maxWidth: 520, margin: "0 auto" }}>
-              ChatGPT, Perplexity, Claude parcourent le web différemment de
-              Google. La plupart des sites sont invisibles pour eux.
-            </p>
-          </div>
-          <UrlForm onSubmit={handleSubmit} />
-          {state === "error" && (
-            <p
-              style={{
-                color: "red",
-                textAlign: "center",
-                marginTop: 16,
-                maxWidth: 500,
-                margin: "16px auto 0",
-              }}
-            >
-              {errorMsg}
-            </p>
-          )}
-        </>
-      )}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background layers */}
+      <AsciiBg />
+      <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_oklch(0_0_0/0.6)_50%,_oklch(0_0_0/0.95)_100%)]" />
+      <div className="fixed inset-0 z-[2] pointer-events-none flex items-center justify-center" style={{ top: '-10%' }}>
+        <LaserFlow
+          color="#0099ff"
+          style={{ width: '100%', height: '80vh' }}
+          verticalSizing={2.0}
+          horizontalSizing={0.5}
+          fogIntensity={0.45}
+          wispDensity={1}
+          wispIntensity={5}
+        />
+      </div>
 
-      {state === "loading" && <LoadingState />}
+      {/* Content */}
+      <div className="relative z-10 px-4 py-16 md:py-24">
+        {(state === "idle" || state === "error") && (
+          <>
+            <div className="text-center mb-12 max-w-2xl mx-auto">
+              <h1 className="font-display text-display text-4xl md:text-6xl mb-4 text-foreground">
+                Votre site est-il lisible par les IA ?
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                ChatGPT, Perplexity, Claude parcourent le web différemment de
+                Google. La plupart des sites sont invisibles pour eux.
+              </p>
+            </div>
+            <UrlForm onSubmit={handleSubmit} />
+            {state === "error" && (
+              <p className="text-destructive text-center mt-4 max-w-md mx-auto text-sm">
+                {errorMsg}
+              </p>
+            )}
+          </>
+        )}
 
-      {state === "result" && result && (
-        <ResultPage result={result} onReset={handleReset} />
-      )}
+        {state === "loading" && <LoadingState />}
+
+        {state === "result" && result && (
+          <ResultPage result={result} onReset={handleReset} />
+        )}
+      </div>
     </div>
   );
 }
