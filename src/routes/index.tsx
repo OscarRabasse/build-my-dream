@@ -60,35 +60,39 @@ function Index() {
     <div className="relative min-h-screen overflow-hidden">
       {/* Background layers */}
       <AsciiBg />
-      <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_oklch(0_0_0/0.6)_50%,_oklch(0_0_0/0.95)_100%)]" />
-      <div className="fixed inset-0 z-[2] pointer-events-none flex items-center justify-center" style={{ top: '-10%' }}>
-        <LaserFlow
-          color="#0099ff"
-          style={{ width: '100%', height: '80vh' }}
-          verticalSizing={2.0}
-          horizontalSizing={0.5}
-          fogIntensity={0.45}
-          wispDensity={1}
-          wispIntensity={5}
-        />
-      </div>
+      <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_80%_50%_at_30%_30%,_transparent_0%,_oklch(0_0_0/0.7)_60%,_oklch(0_0_0/0.9)_100%)]" />
 
       {/* Content */}
-      <div className="relative z-10 px-4 py-16 md:py-24">
+      <div className="relative z-10 px-6 md:px-12 py-20 md:py-32 max-w-4xl">
         {(state === "idle" || state === "error") && (
           <>
-            <div className="text-center mb-12 max-w-2xl mx-auto">
-              <h1 className="font-display text-display text-4xl md:text-6xl mb-4 text-foreground">
+            <div className="text-left mb-10">
+              <h1 className="font-display text-display text-4xl md:text-6xl lg:text-7xl mb-5 text-foreground">
                 Votre site est-il lisible par les IA ?
               </h1>
-              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 ChatGPT, Perplexity, Claude parcourent le web différemment de
                 Google. La plupart des sites sont invisibles pour eux.
               </p>
             </div>
-            <UrlForm onSubmit={handleSubmit} />
+            <div className="relative">
+              <div className="absolute z-[2] pointer-events-none" style={{ top: '-465px', left: '-30%', width: '160%', height: '700px' }}>
+                <LaserFlow
+                  color="#0099ff"
+                  style={{ width: '100%', height: '100%' }}
+                  verticalSizing={2.0}
+                  horizontalSizing={0.5}
+                  fogIntensity={0.45}
+                  wispDensity={1}
+                  wispIntensity={5}
+                />
+              </div>
+              <div className="relative z-10">
+                <UrlForm onSubmit={handleSubmit} />
+              </div>
+            </div>
             {state === "error" && (
-              <p className="text-destructive text-center mt-4 max-w-md mx-auto text-sm">
+              <p className="text-destructive mt-4 text-sm">
                 {errorMsg}
               </p>
             )}

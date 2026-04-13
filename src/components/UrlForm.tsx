@@ -32,9 +32,9 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
   }
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-4xl">
       <ElectricBorder color="#0099ff" borderRadius={16} chaos={0.08}>
-        <form onSubmit={handleSubmit} className="frosted-surface rounded-2xl p-6">
+        <form onSubmit={handleSubmit} className="frosted-surface elevated-card rounded-2xl p-8 md:p-10">
           <div className="flex gap-3">
             <input
               type="text"
@@ -42,12 +42,12 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://monsite.fr"
               disabled={disabled}
-              className="flex-1 px-4 py-3 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-ring text-base"
+              className="flex-1 px-5 py-4 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-ring text-lg"
             />
             <button
               type="submit"
               disabled={disabled}
-              className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="px-8 py-4 rounded-lg bg-foreground text-background font-medium text-lg hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Analyser
             </button>
