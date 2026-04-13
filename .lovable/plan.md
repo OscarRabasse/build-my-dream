@@ -1,51 +1,28 @@
 
 
-## Plan: Apply Briefing Pro's complete visual style
+## Plan: Fix visual design to match Briefing Pro quality
 
-Port the dark theme, fonts, LaserFlow WebGL background, AsciiBg animated background, ElectricBorder component, and all supporting CSS from the [Briefing Pro](/projects/58cece16-68c2-4a90-bed3-7813b9bbb8a7) project to this one.
+### Problems identified (from screenshot comparison)
 
-### What changes visually
-
-- **Background**: Pure black (#000) with the ASCII text animation layer and a radial gradient overlay for readability
-- **Laser**: The blue WebGL laser beam effect positioned behind the main content area
-- **Typography**: Inter + Space Grotesk fonts, tight tracking on headings
-- **Color scheme**: Dark theme with `#0099ff` (blue) as primary/accent, frosted glass surfaces for cards
-- **ElectricBorder**: Animated electric border around the URL input card and result cards
-- **Utility classes**: `frosted-surface`, `blue-glow-ring`, `elevated-card`, `text-display`
-
-### Files to create
-
-| File | Source |
-|------|--------|
-| `src/components/LaserFlow.tsx` | Copied from Briefing Pro (Three.js WebGL shader) |
-| `src/components/LaserFlow.css` | Container styles |
-| `src/components/AsciiBg.tsx` | Copied from Briefing Pro (ASCII animation) |
-| `src/components/AsciiBg.css` | ASCII overlay styles |
-| `src/components/ElectricBorder.tsx` | Copied from Briefing Pro (canvas-based border) |
-| `src/components/ElectricBorder.css` | Glow layers CSS |
+1. **Typography**: The heading is centered and uses default weight — Briefing Pro uses left-aligned, `text-display` class with Space Grotesk, much larger sizing (up to `text-7xl`), and tight letter-spacing
+2. **Layout**: Content is centered — Briefing Pro is left-aligned with `max-w-4xl`
+3. **Laser position**: The laser is placed at `top: -10%` centered on the viewport — in Briefing Pro, the laser sits directly behind the form card with `top: -465px` relative to the form container, making it "land" right where the card is
+4. **Button styling**: The "Analyser" button uses `bg-primary` (blue) — Briefing Pro uses `bg-foreground text-background` (white button, black text) for the primary action
+5. **ASCII background opacity**: Barely visible — the radial gradient overlay is too aggressive (solid 95% at edges). Briefing Pro uses `ellipse 80% 50% at 30% 30%` with softer falloff
+6. **Form card**: The frosted surface and ElectricBorder are there but the card feels small and cramped. Briefing Pro uses larger padding (`p-8 md:p-10`) and `elevated-card`
+7. **Subtitle**: Generic text styling — should match the muted, larger subtitle style from Briefing Pro
 
 ### Files to modify
 
 | File | Changes |
 |------|---------|
-| `src/styles.css` | Replace color tokens with Briefing Pro's dark theme (black bg, white fg, `#0099ff` primary). Add Google Fonts import (Inter + Space Grotesk). Add utility classes (`frosted-surface`, `elevated-card`, `blue-glow-ring`, `text-display`). |
-| `src/routes/index.tsx` | Add `AsciiBg` + radial gradient overlay + `LaserFlow` behind content. Wrap URL form card in `ElectricBorder`. Replace inline styles with Tailwind classes using the dark theme. |
-| `src/components/UrlForm.tsx` | Restyle with Tailwind: dark frosted card surface, white text, blue-accented input and button. |
-| `src/components/ResultPage.tsx` | Restyle with Tailwind: dark cards, blue accent score, frosted surfaces. |
-| `src/components/ResultCard.tsx` | Restyle with Tailwind: dark card with border, proper spacing. |
-| `src/components/CtaPixweb.tsx` | Restyle with Tailwind: dark surface, blue accent CTA button. |
-| `src/components/LoadingState.tsx` | Restyle with Tailwind: match dark theme. |
-| `src/routes/__root.tsx` | Add `dark` class to `<html>` tag so the dark theme activates. |
+| `src/routes/index.tsx` | Left-align hero section. Fix heading to use `text-7xl font-display text-display`. Reposition laser behind the form card (use the Briefing Pro pattern: wrapper div with `top: -465px`). Soften radial gradient overlay. |
+| `src/components/UrlForm.tsx` | Wider card (`max-w-4xl`). Larger padding. Add `elevated-card` class. Change button to white (`bg-foreground text-background`). Larger input. |
 
-### Dependencies to add
+### Technical details
 
-- `three` (required by LaserFlow's WebGL renderer)
-
-### Technical notes
-
-- The dark theme is always-on (class `dark` on `<html>`), no toggle needed
-- LaserFlow uses Three.js with a custom GLSL fragment shader — runs in a canvas behind the content
-- AsciiBg is pure JS/canvas (Perlin noise + ASCII rendering), no extra deps
-- ElectricBorder uses Canvas 2D API with noise-based displacement, no extra deps
-- All color values will be converted from HSL (Briefing Pro's Tailwind v3 format) to oklch (this project's Tailwind v4 format)
+- Laser repositioning: wrap the form area in a `relative` container, place LaserFlow as an absolute child with `top: -465px` so the beam focal point lands right at the card
+- Radial gradient: switch from `transparent 0%, 0.6 at 50%, 0.95 at 100%` to `ellipse 80% 50% at 30% 30%` matching Briefing Pro
+- Hero typography: `text-4xl md:text-6xl lg:text-7xl font-medium text-display font-display`, left-aligned with `text-left`
+- Button: `bg-foreground text-background hover:bg-foreground/90` (white on black)
 
