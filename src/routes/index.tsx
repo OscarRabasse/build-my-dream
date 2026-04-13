@@ -73,7 +73,7 @@ function Index() {
         <>
           <div className="relative z-10 max-w-4xl mx-auto mb-12 md:mb-16">
             <h1 className="font-display text-display text-4xl md:text-6xl lg:text-7xl mb-5 text-foreground">
-              Votre site est-il lisible par les IA ?
+              Votre site est-il<br />lisible par les IA&nbsp;?
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
               ChatGPT, Perplexity, Claude parcourent le web différemment de
@@ -84,7 +84,7 @@ function Index() {
           <div className="relative" style={{ minHeight: '600px' }}>
             <div
               className="absolute pointer-events-none"
-              style={{ zIndex: 0, top: '-465px', left: 0, right: 0, bottom: 0 }}
+              style={{ zIndex: 0, top: '-550px', left: 0, right: 0, bottom: 0 }}
             >
               <LaserFlow
                 color="#0099ff"
