@@ -54,8 +54,7 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
           {error && (
             <p className="text-destructive mt-3 text-sm">{error}</p>
           )}
-        </form>
-      </ElectricBorder>
-    </div>
+      </form>
+    </ElectricBorder>
   );
 }
