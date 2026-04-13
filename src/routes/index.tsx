@@ -84,7 +84,7 @@ function Index() {
           <div className="relative" style={{ minHeight: '600px' }}>
             <div
               className="absolute pointer-events-none"
-              style={{ zIndex: 0, top: '-550px', left: 0, right: 0, bottom: 0 }}
+              style={{ zIndex: 0, top: '-580px', left: 0, right: 0, bottom: 0 }}
             >
               <LaserFlow
                 color="#0099ff"
