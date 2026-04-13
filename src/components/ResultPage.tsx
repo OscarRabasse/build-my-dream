@@ -1,7 +1,20 @@
+import { useMemo } from "react";
 import type { AnalysisResult } from "@/lib/types";
 import { ResultCard } from "./ResultCard";
 import { CategoryScoresBar } from "./CategoryScoresBar";
 import { CtaPixweb } from "./CtaPixweb";
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^[-*]\s+/gm, "• ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 interface ResultPageProps {
   result: AnalysisResult;
@@ -32,7 +45,7 @@ export function ResultPage({ result, onReset }: ResultPageProps) {
       </div>
 
       <div className="frosted-surface rounded-xl p-6 mb-8 elevated-card">
-        <p className="italic text-muted-foreground leading-relaxed">{result.synthesis}</p>
+        <p className="text-foreground/80 leading-relaxed whitespace-pre-line">{stripMarkdown(result.synthesis)}</p>
       </div>
 
       <CategoryScoresBar categoryScores={result.categoryScores} />
