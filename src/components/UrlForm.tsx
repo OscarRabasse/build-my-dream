@@ -32,9 +32,8 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
   }
 
   return (
-    <div className="max-w-4xl">
-      <ElectricBorder color="#0099ff" borderRadius={16} chaos={0.08}>
-        <form onSubmit={handleSubmit} className="frosted-surface elevated-card rounded-2xl p-8 md:p-10">
+    <ElectricBorder color="#0099ff" borderRadius={16} chaos={0.08}>
+      <form onSubmit={handleSubmit} className="frosted-surface elevated-card rounded-2xl p-8 md:p-10">
           <div className="flex gap-3">
             <input
               type="text"
@@ -55,8 +54,7 @@ export function UrlForm({ onSubmit, disabled }: UrlFormProps) {
           {error && (
             <p className="text-destructive mt-3 text-sm">{error}</p>
           )}
-        </form>
-      </ElectricBorder>
-    </div>
+      </form>
+    </ElectricBorder>
   );
 }

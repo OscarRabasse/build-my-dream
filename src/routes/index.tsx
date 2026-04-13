@@ -57,54 +57,69 @@ function Index() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden py-12 md:py-20 px-4">
       {/* Background layers */}
       <AsciiBg />
-      <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_80%_50%_at_30%_30%,_transparent_0%,_oklch(0_0_0/0.7)_60%,_oklch(0_0_0/0.9)_100%)]" />
+      <div
+        className="fixed inset-0 z-[1] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 30% 30%, oklch(0 0 0 / 0.85) 0%, oklch(0 0 0 / 0.5) 40%, oklch(0 0 0 / 0) 70%)",
+        }}
+      />
 
       {/* Content */}
-      <div className="relative z-10 px-6 md:px-12 py-20 md:py-32 max-w-4xl">
-        {(state === "idle" || state === "error") && (
-          <>
-            <div className="text-left mb-10">
-              <h1 className="font-display text-display text-4xl md:text-6xl lg:text-7xl mb-5 text-foreground">
-                Votre site est-il lisible par les IA ?
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                ChatGPT, Perplexity, Claude parcourent le web différemment de
-                Google. La plupart des sites sont invisibles pour eux.
-              </p>
-            </div>
-            <div className="relative">
-              <div className="absolute z-[2] pointer-events-none" style={{ top: '-465px', left: '-30%', width: '160%', height: '700px' }}>
-                <LaserFlow
-                  color="#0099ff"
-                  style={{ width: '100%', height: '100%' }}
-                  verticalSizing={2.0}
-                  horizontalSizing={0.5}
-                  fogIntensity={0.45}
-                  wispDensity={1}
-                  wispIntensity={5}
-                />
-              </div>
-              <div className="relative z-10">
-                <UrlForm onSubmit={handleSubmit} />
-              </div>
-            </div>
-            {state === "error" && (
-              <p className="text-destructive mt-4 text-sm">
-                {errorMsg}
-              </p>
-            )}
-          </>
-        )}
+      {(state === "idle" || state === "error") && (
+        <>
+          <div className="relative z-10 max-w-4xl mx-auto mb-12 md:mb-16">
+            <h1 className="font-display text-display text-4xl md:text-6xl lg:text-7xl mb-5 text-foreground">
+              Votre site est-il lisible par les IA ?
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+              ChatGPT, Perplexity, Claude parcourent le web différemment de
+              Google. La plupart des sites sont invisibles pour eux.
+            </p>
+          </div>
 
-        {state === "loading" && <LoadingState />}
+          <div className="relative" style={{ minHeight: '600px' }}>
+            <div
+              className="absolute pointer-events-none"
+              style={{ zIndex: 0, top: '-465px', left: 0, right: 0, bottom: 0 }}
+            >
+              <LaserFlow
+                color="#0099ff"
+                style={{ width: '100%', height: '100%' }}
+                verticalSizing={2.0}
+                horizontalSizing={0.5}
+                fogIntensity={0.45}
+                wispDensity={1}
+                wispIntensity={5}
+              />
+            </div>
+            <div className="relative z-[5] max-w-4xl mx-auto">
+              <UrlForm onSubmit={handleSubmit} />
+            </div>
+          </div>
 
-        {state === "result" && result && (
+          {state === "error" && (
+            <p className="text-destructive mt-4 text-sm max-w-4xl mx-auto">
+              {errorMsg}
+            </p>
+          )}
+        </>
+      )}
+
+      {state === "loading" && (
+        <div className="relative z-10">
+          <LoadingState />
+        </div>
+      )}
+
+      {state === "result" && result && (
+        <div className="relative z-10">
           <ResultPage result={result} onReset={handleReset} />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
