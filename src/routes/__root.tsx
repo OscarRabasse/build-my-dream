@@ -36,6 +36,10 @@ export const Route = createRootRoute({
       { name: "author", content: "Pixweb" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:title", content: "Votre site parle-t-il IA ?" },
+      { name: "twitter:title", content: "Votre site parle-t-il IA ?" },
+      { property: "og:description", content: "Testez si votre site est lisible par les crawlers IA. Score sur 100 + diagnostic en 30 secondes." },
+      { name: "twitter:description", content: "Testez si votre site est lisible par les crawlers IA. Score sur 100 + diagnostic en 30 secondes." },
     ],
     links: [
       {
