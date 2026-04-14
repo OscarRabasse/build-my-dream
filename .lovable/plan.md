@@ -1,24 +1,46 @@
 
 
-## Fix: Anthropic 403 "Request not allowed" for claude-haiku-4-5-20251001
+## Plan: Fix Anthropic API key + model ID + logging
 
-### Diagnosis
+### Problem
 
-The model ID `claude-haiku-4-5-20251001` is valid. The API key is set. The 403 "Request not allowed" error means **the current API key does not have permission to access this model**.
+Two issues found:
 
-This is an Anthropic account/key issue, not a code issue. Common causes:
-- The API key was created before Claude 4.5 Haiku was available and needs to be regenerated
-- The Anthropic account/plan doesn't include access to this model
-- The key has restricted model permissions
+1. **Model ID is wrong** — Line 768 currently uses `"claude-sonnet-4-6-20250217"` (from a previous failed attempt). It needs to be reverted to `"claude-haiku-4-5-20251001"` as you specified.
 
-### Action needed from you
+2. **API key mismatch** — The `ANTHROPIC_API_KEY` secret deployed to Lovable/Cloudflare may differ from your working local key. However, I cannot read `.dev.vars` — it's not in the repo (gitignored). You'll need to provide the key value so I can update the secret via the `update_secret` tool.
 
-1. Go to [console.anthropic.com](https://console.anthropic.com) → API Keys
-2. Verify your key has access to `claude-haiku-4-5-20251001` (try it in the Anthropic playground or workbench)
-3. If the key doesn't work there either, generate a new API key
-4. Once you have a working key, I'll update the secret in Lovable
+3. **Poor error logging** — `console.error` may not surface in Cloudflare logs. Needs improvement.
 
-### What I will do (no code changes needed)
+### Changes
 
-The code at line 768 already uses `"claude-haiku-4-5-20251001"` — that's correct. Once the API key issue is resolved, I'll update the secret using the `update_secret` tool. No code changes required.
+**File: `src/utils/analyze.functions.ts` (lines 768, 774-783)**
+
+1. Revert model to `"claude-haiku-4-5-20251001"`
+2. Improve error logging in the `synthesize()` catch/error paths:
+   - Use `console.log` with `[SYNTHESIS ERROR]` prefix
+   - Log the full status code and response body on failure
+
+```ts
+// Line 768: fix model
+model: "claude-haiku-4-5-20251001",
+
+// Lines 774-783: better logging
+if (!res.ok) {
+  const errorBody = await res.text();
+  console.log(`[SYNTHESIS ERROR] Anthropic HTTP ${res.status}: ${errorBody}`);
+  return "Synthèse indisponible.";
+}
+// ...
+} catch (e) {
+  console.log("[SYNTHESIS ERROR] Anthropic call failed:", e instanceof Error ? e.message : e);
+  return "Synthèse indisponible.";
+}
+```
+
+**Secret update**: After you paste the working API key value from `.dev.vars`, I'll use `update_secret` to set it. The deployment happens automatically.
+
+### What I need from you
+
+Paste the `ANTHROPIC_API_KEY` value from your `.dev.vars` file so I can update the deployed secret. I cannot access that file — it's not in the repository.
 
