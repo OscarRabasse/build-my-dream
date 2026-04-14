@@ -763,6 +763,8 @@ ${checksText}
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
+        "user-agent":
+          "AI-Readability-Checker/1.0 (+https://build-my-dream-224.lovable.app)",
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
@@ -773,7 +775,14 @@ ${checksText}
 
     if (!res.ok) {
       const errorBody = await res.text();
-      console.log(`[SYNTHESIS ERROR] Anthropic HTTP ${res.status}: ${errorBody}`);
+      let parsed: { error?: { type?: string; message?: string } } = {};
+      try {
+        parsed = JSON.parse(errorBody);
+      } catch {}
+      const kFp = `${apiKey.slice(0, 4)}…${apiKey.slice(-4)}`;
+      console.log(
+        `[SYNTHESIS_ERROR] status=${res.status} type=${parsed.error?.type ?? "?"} msg=${parsed.error?.message ?? "?"} key=${kFp} keyLen=${apiKey.length} cfRay=${res.headers.get("cf-ray") ?? "?"} body=${errorBody}`
+      );
       return "Synthèse indisponible.";
     }
 
