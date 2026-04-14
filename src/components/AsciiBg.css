@@ -13,7 +13,7 @@ pre.ascii-pre {
   overflow: hidden;
   color: var(--ascii-fg, #0099ff);
   background: transparent;
-  opacity: var(--ascii-opacity, 0.24);
+  opacity: var(--ascii-opacity, 0.3);
   font: 12px/12px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   white-space: pre;
   user-select: none;
