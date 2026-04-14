@@ -765,21 +765,22 @@ ${checksText}
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6-20250217",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 300,
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) {
-      console.error("Anthropic error:", res.status, await res.text());
+      const errorBody = await res.text();
+      console.log(`[SYNTHESIS ERROR] Anthropic HTTP ${res.status}: ${errorBody}`);
       return "Synthèse indisponible.";
     }
 
     const data = await res.json();
     return (data.content?.[0]?.text as string) || "Synthèse indisponible.";
   } catch (e) {
-    console.error("Anthropic call failed:", e);
+    console.log("[SYNTHESIS ERROR] Anthropic call failed:", e instanceof Error ? e.message : e);
     return "Synthèse indisponible.";
   }
 }
