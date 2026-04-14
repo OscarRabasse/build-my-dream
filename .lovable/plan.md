@@ -1,37 +1,44 @@
 
 
-## Plan: Fix typography, laser position, and remove badge
+## Plan: Fix contrast on result page + hydration error
 
-### 1. Typography — use the exact same fonts as Briefing Pro
+### Problems
 
-The Google Fonts import in `src/styles.css` already loads Inter + Space Grotesk. The `--font-display` and `--font-sans` CSS variables are correctly set. The issue is that the `h1` heading uses `font-display text-display` classes but the font may not be rendering correctly due to the Google Fonts URL or weight loading.
+1. **Result page has no background**: When `state === "result"`, the ASCII background animation bleeds through behind the score, verdict, and synthesis card. The wrapping `div.relative.z-10` is transparent — there's nothing blocking the busy ASCII pattern underneath.
 
-Looking at Briefing Pro's `tailwind.config.ts`, the font stacks are:
-- `sans: ['Inter', '-apple-system', 'system-ui', 'sans-serif']`
-- `display: ['Space Grotesk', 'Inter', 'sans-serif']`
+2. **Hydration mismatch**: The `@import url(...)` for Google Fonts at the top of `styles.css` causes a `<link>` to be injected in `<head>` at a position that conflicts with SSR-rendered meta tags. Moving the font import into the `<head>` via the root route's `head()` config fixes this.
 
-The current project has these correctly in `@theme inline` block. The real problem: the Google Fonts import URL needs `wght@` ranges for variable fonts and `&display=swap`. The current import looks correct. Let me verify the heading class actually applies — the `text-display` utility sets `letter-spacing: -0.04em; line-height: 0.9; font-weight: 500` which matches Briefing Pro exactly.
+### Fix
 
-**Fix**: The `h1` text "Votre site est-il lisible par les IA ?" wraps awkwardly with the `?` on a new line (visible in screenshot). Add a `<br />` after "les IA" to control the break, or use `whitespace-nowrap` on select words. Also ensure the Google Fonts `@import` URL is at the very top of styles.css (before `@import "tailwindcss"`).
+| File | Change |
+|------|--------|
+| `src/routes/index.tsx` | Add a solid black backdrop behind the result page: wrap the ResultPage in a div with `bg-background` and hide the gradient overlay + LaserFlow when showing results. Same for loading state. |
+| `src/styles.css` | Remove the Google Fonts `@import url(...)` line (move it to `__root.tsx` head instead). |
+| `src/routes/__root.tsx` | Add the Google Fonts stylesheet as a `links` entry in `head()` to avoid hydration mismatch. |
 
-### 2. Laser — reduce the top offset to bring the focal point higher
+### Technical details
 
-In Briefing Pro, the laser container uses `top: -465px` but their form card sits much lower on the page (after a hero section + progress bar + margin). In this project, the form card is closer to the top. The laser "explodes" too low — behind the card instead of above it.
+**Result page backdrop** — in `index.tsx`, the result/loading states get `bg-background` on their wrapper so the ASCII bg is fully occluded:
+```tsx
+{state === "result" && result && (
+  <div className="relative z-10 bg-background min-h-screen -mx-4 -my-12 md:-my-20 px-4 py-12 md:py-20">
+    <ResultPage result={result} onReset={handleReset} />
+  </div>
+)}
+```
 
-**Fix**: Change `top: '-465px'` to `top: '-550px'` (raise the laser container by ~85px so the beam focal point lands above the card, near the gap between the heading and the form).
+Alternative (simpler): hide `AsciiBg` and the gradient overlay when not in idle/error state, since they serve no purpose on the result page.
 
-### 3. Remove "Edit with Lovable" badge
+**Hydration fix** — move font loading from CSS `@import` to HTML `<link>`:
+```tsx
+// __root.tsx head() links array
+links: [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+  { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" },
+  { rel: "stylesheet", href: appCss },
+]
+```
 
-Use the `publish_settings--set_badge_visibility` tool to hide the badge.
-
-### Files to modify
-
-| File | Changes |
-|------|---------|
-| `src/routes/index.tsx` | Change laser wrapper `top` from `-465px` to `-550px`. Fix h1 line break. |
-| `src/styles.css` | Move `@import url(...)` for Google Fonts BEFORE `@import "tailwindcss"` if it isn't already (font loading order matters). |
-
-### Badge
-
-Call `publish_settings--set_badge_visibility({ hide_badge: true })`.
+And remove line 1 from `src/styles.css`.
 
