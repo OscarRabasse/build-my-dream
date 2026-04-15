@@ -757,7 +757,9 @@ ${checksText}
 Écris un verdict de 2-3 phrases en français, direct et sans bullshit, qui résume l'état du site pour un non-technique. Pas de jargon. Pas de moralisation. Commence directement par l'état du site, pas par une politesse.`;
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const anthropicUrl =
+      process.env.ANTHROPIC_GATEWAY_URL ?? "https://api.anthropic.com/v1/messages";
+    const res = await fetch(anthropicUrl, {
       method: "POST",
       headers: {
         "x-api-key": apiKey,
