@@ -3,6 +3,7 @@ import { ResultCard } from "./ResultCard";
 import { CategoryScoresBar } from "./CategoryScoresBar";
 import { CtaPixweb } from "./CtaPixweb";
 import { HumanVsAi } from "./HumanVsAi";
+import { DiagnosticPanel } from "./DiagnosticPanel";
 
 function stripMarkdown(text: string): string {
   return text
@@ -52,9 +53,15 @@ export function ResultPage({ result, onReset }: ResultPageProps) {
         )}
       </div>
 
-<div className="frosted-surface rounded-xl p-6 mb-8 elevated-card">
-        <p className="text-foreground/80 leading-relaxed whitespace-pre-line">{stripMarkdown(result.synthesis)}</p>
-      </div>
+      {result.richDiagnostic ? (
+        <DiagnosticPanel diagnostic={result.richDiagnostic} />
+      ) : (
+        <div className="frosted-surface rounded-xl p-6 mb-8 elevated-card">
+          <p className="text-foreground/80 leading-relaxed whitespace-pre-line">
+            {stripMarkdown(result.synthesis)}
+          </p>
+        </div>
+      )}
 
       {result.actionPlan && result.actionPlan.length > 0 && (
         <div className="mb-8">
