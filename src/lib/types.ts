@@ -29,6 +29,7 @@ export interface CheckResult {
   findings?: CheckFinding[];
   whyItMatters?: string;
   potentialScoreGain?: number;
+  isBonus?: boolean;
 }
 
 export interface CategoryScore {

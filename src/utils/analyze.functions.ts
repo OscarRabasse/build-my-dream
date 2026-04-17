@@ -92,7 +92,7 @@ function checkSemanticStructure(html: string): CheckResult {
   if (count >= 4) status = "green";
   else if (count >= 2) status = "orange";
 
-  const maxPoints = 10;
+  const maxPoints = 7;
   const points = pointsForStatus(status, maxPoints);
   return {
     name: "Structure sémantique HTML",
@@ -177,7 +177,7 @@ function checkHeadings(html: string): CheckResult {
     }
   }
 
-  const maxPoints = 10;
+  const maxPoints = 8;
   const points = pointsForStatus(status, maxPoints);
   return {
     name: "Hiérarchie des titres",
@@ -211,7 +211,7 @@ function checkJsContent(rawHtml: string, renderedHtml: string): CheckResult {
   const rawText = extractText(rawHtml);
   const renderedText = extractText(renderedHtml);
 
-  const maxPoints = 12;
+  const maxPoints = 15;
 
   if (renderedText.length === 0) {
     return {
@@ -268,7 +268,7 @@ function checkJsContent(rawHtml: string, renderedHtml: string): CheckResult {
 }
 
 async function checkLlmsTxt(url: string, siteCtx: SiteContext): Promise<CheckResult> {
-  const maxPoints = 10;
+  const maxPoints = 5;
   const skeleton = `# ${siteCtx.title || "Nom de votre site"}
 
 > ${siteCtx.description || "Description courte de ce que fait votre site."}
@@ -306,12 +306,13 @@ async function checkLlmsTxt(url: string, siteCtx: SiteContext): Promise<CheckRes
               "Fichier llms.txt présent et conforme au format llmstxt.org.",
             fix: "Rien à corriger.",
             category: "signals",
-            severity: "medium",
+            severity: "low",
             points: maxPoints,
             maxPoints,
             findings,
-            whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre.",
+            whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre. Bonus : ne penalise pas si absent.",
             potentialScoreGain: 0,
+            isBonus: true,
           };
         }
 
@@ -327,13 +328,14 @@ async function checkLlmsTxt(url: string, siteCtx: SiteContext): Promise<CheckRes
           explanation: `Fichier llms.txt présent mais incomplet — manque : ${missing.join(", ")}.`,
           fix: "Suivez le format llmstxt.org : un titre H1, au moins une section ## et des liens markdown vers vos pages clés.",
           category: "signals",
-          severity: "medium",
+          severity: "low",
           points: orangePoints,
           maxPoints,
           findings,
-          whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre.",
+          whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre. Bonus : ne penalise pas si absent.",
           potentialScoreGain: maxPoints - orangePoints,
           codeSnippet: skeleton,
+          isBonus: true,
         };
       }
     }
@@ -346,7 +348,7 @@ async function checkLlmsTxt(url: string, siteCtx: SiteContext): Promise<CheckRes
     explanation: "Aucun fichier llms.txt trouvé à la racine du site.",
     fix: "Créez un fichier /llms.txt décrivant votre site pour les crawlers IA. Voir llmstxt.org.",
     category: "signals",
-    severity: "medium",
+    severity: "low",
     points: 0,
     maxPoints,
     findings: [
@@ -354,9 +356,10 @@ async function checkLlmsTxt(url: string, siteCtx: SiteContext): Promise<CheckRes
       { label: "Section ## H2", found: false },
       { label: "Lien markdown", found: false },
     ],
-    whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre.",
+    whyItMatters: "Le fichier llms.txt est un guide specifique pour les LLMs. Il leur dit exactement quoi lire et dans quel ordre. Bonus : ne penalise pas si absent.",
     potentialScoreGain: maxPoints,
     codeSnippet: skeleton,
+    isBonus: true,
   };
 }
 
@@ -411,7 +414,7 @@ function checkMetadata(metadata: Record<string, unknown>, siteCtx: SiteContext):
   if (problems >= 3) status = "red";
   else if (problems >= 1) status = "orange";
 
-  const maxPoints = 10;
+  const maxPoints = 12;
   const points = pointsForStatus(status, maxPoints);
 
   const findings: CheckFinding[] = [
@@ -477,7 +480,7 @@ function checkHtmlLang(rawHtml: string): CheckResult {
   const lang = match ? match[1].trim() : "";
   const status: CheckStatus = lang.length > 0 ? "green" : "red";
 
-  const maxPoints = 6;
+  const maxPoints = 5;
   const points = pointsForStatus(status, maxPoints);
   return {
     name: "Attribut lang sur <html>",
@@ -567,7 +570,7 @@ function isBotBlocked(
 function checkRobotsAiBots(
   robotsText: string | null
 ): { result: CheckResult; allMajorAiBotsBlocked: boolean } {
-  const maxPoints = 15;
+  const maxPoints = 18;
 
   if (robotsText === null) {
     return {
@@ -655,7 +658,7 @@ function checkRobotsAiBots(
 }
 
 function checkJsonLd(rawHtml: string, siteCtx: SiteContext): CheckResult {
-  const maxPoints = 14;
+  const maxPoints = 15;
   const blockRegex =
     /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   const blocks: string[] = [];
@@ -780,7 +783,7 @@ function checkOpenGraph(metadata: Record<string, unknown>, siteCtx: SiteContext)
   const ogImage = metadata.ogImage as string | undefined;
 
   const present = [ogTitle, ogDescription, ogImage].filter(Boolean).length;
-  const maxPoints = 7;
+  const maxPoints = 8;
 
   let status: CheckStatus = "red";
   if (present === 3) status = "green";
@@ -816,7 +819,7 @@ function checkOpenGraph(metadata: Record<string, unknown>, siteCtx: SiteContext)
 }
 
 async function checkSitemap(url: string): Promise<CheckResult> {
-  const maxPoints = 6;
+  const maxPoints = 7;
   try {
     const parsed = new URL(url);
     const sitemapUrl = `${parsed.protocol}//${parsed.host}/sitemap.xml`;
@@ -870,7 +873,8 @@ async function checkSitemap(url: string): Promise<CheckResult> {
   };
 }
 
-function buildCategoryScores(checks: CheckResult[]): CategoryScore[] {
+function buildCategoryScores(allChecks: CheckResult[]): CategoryScore[] {
+  const checks = allChecks.filter((c) => !c.isBonus);
   const buckets: Record<Category, { earned: number; max: number }> = {
     access: { earned: 0, max: 0 },
     structure: { earned: 0, max: 0 },
@@ -903,9 +907,17 @@ function scoreFromChecks(
   capReason?: string;
   categoryScores: CategoryScore[];
 } {
-  const earned = checks.reduce((sum, c) => sum + c.points, 0);
-  const max = checks.reduce((sum, c) => sum + c.maxPoints, 0);
-  const rawScore = max === 0 ? 0 : Math.round((earned / max) * 100);
+  const baseChecks = checks.filter((c) => !c.isBonus);
+  const bonusChecks = checks.filter((c) => c.isBonus);
+
+  const baseEarned = baseChecks.reduce((sum, c) => sum + c.points, 0);
+  const baseMax = baseChecks.reduce((sum, c) => sum + c.maxPoints, 0);
+  const baseScore = baseMax === 0 ? 0 : Math.round((baseEarned / baseMax) * 100);
+
+  // Bonus is added on top of the normalized base score, capped at 100.
+  // An absent bonus check never deducts points.
+  const bonusEarned = bonusChecks.reduce((sum, c) => sum + c.points, 0);
+  const rawScore = Math.min(100, baseScore + bonusEarned);
 
   const categoryScores = buildCategoryScores(checks);
 
