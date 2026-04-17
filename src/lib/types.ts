@@ -2,6 +2,20 @@ export type CheckStatus = "green" | "orange" | "red";
 export type Category = "access" | "structure" | "content" | "signals";
 export type Severity = "critical" | "high" | "medium" | "low";
 
+export interface CheckFinding {
+  label: string;
+  found: boolean;
+  detail?: string;
+}
+
+export interface ActionItem {
+  priority: number;
+  title: string;
+  reason: string;
+  impact: string;
+  checkName: string;
+}
+
 export interface CheckResult {
   name: string;
   status: CheckStatus;
@@ -12,6 +26,9 @@ export interface CheckResult {
   points: number;
   maxPoints: number;
   codeSnippet?: string;
+  findings?: CheckFinding[];
+  whyItMatters?: string;
+  potentialScoreGain?: number;
 }
 
 export interface CategoryScore {
@@ -32,4 +49,9 @@ export interface AnalysisResult {
   synthesis: string;
   checks: CheckResult[];
   categoryScores: CategoryScore[];
+  actionPlan?: ActionItem[];
+  siteTitle?: string;
+  siteDescription?: string;
+  screenshotUrl?: string;
+  rawHtmlPreview?: string;
 }

@@ -35,11 +35,39 @@ export function ResultCard({ check }: { check: CheckResult }) {
         </span>
         <span className="text-xs text-muted-foreground ml-auto">
           {check.points}/{check.maxPoints} pts
+          {check.potentialScoreGain != null && check.potentialScoreGain > 0 && (
+            <span className="text-xs text-primary/70 ml-1">
+              (+{check.potentialScoreGain} pts si corrigé)
+            </span>
+          )}
         </span>
       </div>
       <p className="mt-2 text-sm text-muted-foreground">{check.explanation}</p>
+      {check.status !== "green" && check.whyItMatters && (
+        <p className="mt-1.5 text-xs text-muted-foreground italic">
+          Pourquoi c'est important pour l'IA : {check.whyItMatters}
+        </p>
+      )}
       {check.status !== "green" && (
         <p className="mt-1 text-sm italic text-primary/80">💡 {check.fix}</p>
+      )}
+      {check.findings && check.findings.length > 0 && (
+        <details className="mt-2">
+          <summary className="text-xs text-muted-foreground cursor-pointer">
+            Voir le détail
+          </summary>
+          <ul className="mt-1 space-y-0.5 text-xs">
+            {check.findings.map((f, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <span>{f.found ? "✓" : "✗"}</span>
+                <span className={f.found ? "text-foreground/70" : "text-destructive/80"}>
+                  {f.label}
+                  {f.detail && <span className="text-muted-foreground ml-1">— {f.detail}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       {showSnippet && (
         <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 text-xs font-mono text-foreground">
