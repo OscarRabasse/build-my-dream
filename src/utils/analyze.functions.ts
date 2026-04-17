@@ -27,6 +27,97 @@ const CATEGORY_LABELS: Record<Category, string> = {
   signals: "Signaux",
 };
 
+type CheckEnrichment = {
+  businessImpact?: string;
+  goodExample?: { label: string; url: string };
+  templateLink?: string;
+};
+
+const CHECK_ENRICHMENT: Record<string, CheckEnrichment> = {
+  "Accès des robots IA (robots.txt)": {
+    businessImpact:
+      "Si les robots IA ne peuvent pas te lire, tu disparais des réponses ChatGPT Search, Perplexity, Gemini. Un prospect pose une question sur ton métier ? Il tombe sur tes concurrents, pas sur toi.",
+    goodExample: {
+      label: "openai.com/robots.txt",
+      url: "https://openai.com/robots.txt",
+    },
+    templateLink:
+      "https://developers.google.com/search/docs/crawling-indexing/robots/intro?hl=fr",
+  },
+  "Sitemap XML": {
+    businessImpact:
+      "Sans sitemap, les moteurs IA découvrent tes pages au hasard. Tes études de cas, pages services ou articles récents peuvent ne jamais être indexés.",
+    goodExample: { label: "stripe.com/sitemap.xml", url: "https://stripe.com/sitemap.xml" },
+    templateLink: "https://www.sitemaps.org/fr/protocol.html",
+  },
+  "Données structurées (JSON-LD)": {
+    businessImpact:
+      "C'est la fiche d'identité officielle que Google et les IA lisent en priorité. Sans elle, ton nom d'entreprise, tes services et tes coordonnées ne remontent pas de façon fiable dans les réponses.",
+    goodExample: {
+      label: "airbnb.com (Organization + Product)",
+      url: "https://www.airbnb.com",
+    },
+    templateLink: "https://schema.org/Organization",
+  },
+  "Contenu accessible sans JavaScript": {
+    businessImpact:
+      "Beaucoup de crawlers IA (Perplexity, ChatGPT Search) n'exécutent pas JavaScript. Si ton contenu n'apparaît qu'après JS, ils voient une page vide — et toi tu deviens invisible.",
+    goodExample: { label: "github.com (rendu serveur)", url: "https://github.com" },
+    templateLink: "https://web.dev/articles/rendering-on-the-web?hl=fr",
+  },
+  "Metadata essentielles": {
+    businessImpact:
+      "Title + description, c'est ce que l'utilisateur voit dans Google et dans les résumés des IA. Mal optimisés, tu perds des clics même bien classé.",
+    goodExample: { label: "linear.app", url: "https://linear.app" },
+    templateLink: "https://developer.mozilla.org/fr/docs/Web/HTML/Element/meta",
+  },
+  "Balises Open Graph": {
+    businessImpact:
+      "Pas d'OG = quand quelqu'un partage ton lien sur LinkedIn, Slack ou Teams, le rendu est moche, sans image ni titre. Tu perds en crédibilité et en taux de clic.",
+    goodExample: { label: "stripe.com", url: "https://stripe.com" },
+    templateLink: "https://ogp.me/",
+  },
+  "Fichier llms.txt": {
+    businessImpact:
+      "Standard émergent pour dire aux IA 'voilà les pages qui résument mon offre'. Encore rare — gros avantage compétitif tant que tes concurrents ne l'ont pas.",
+    goodExample: {
+      label: "anthropic.com/llms.txt",
+      url: "https://www.anthropic.com/llms.txt",
+    },
+    templateLink: "https://llmstxt.org/",
+  },
+  "Structure sémantique HTML": {
+    businessImpact:
+      "Sans <header>, <main>, <nav>, les IA confondent menu, contenu principal et pied de page. Elles peuvent citer ton disclaimer RGPD au lieu de ton pitch commercial.",
+    goodExample: { label: "gov.uk (modèle d'accessibilité)", url: "https://www.gov.uk" },
+    templateLink:
+      "https://developer.mozilla.org/fr/docs/Web/HTML/Element#sectionnement",
+  },
+  "Hiérarchie des titres": {
+    businessImpact:
+      "Un H1 manquant ou plusieurs H1 et les IA ne savent pas quel est le sujet principal de ta page. Elles citent alors une section secondaire au lieu de ton offre.",
+    goodExample: {
+      label: "developer.mozilla.org",
+      url: "https://developer.mozilla.org",
+    },
+    templateLink:
+      "https://developer.mozilla.org/fr/docs/Web/HTML/Element/Heading_Elements",
+  },
+  "Attribut lang sur <html>": {
+    businessImpact:
+      "Sans lang='fr', les IA peuvent te classer en anglais et ne pas te remonter quand un prospect pose sa question en français — même si tout ton contenu est en français.",
+    goodExample: { label: "lemonde.fr", url: "https://www.lemonde.fr" },
+    templateLink:
+      "https://developer.mozilla.org/fr/docs/Web/HTML/Global_attributes/lang",
+  },
+};
+
+function enrichCheckMetadata(check: CheckResult): CheckResult {
+  const enrichment = CHECK_ENRICHMENT[check.name];
+  if (!enrichment) return check;
+  return { ...check, ...enrichment };
+}
+
 const AI_BOTS = [
   "GPTBot",
   "ChatGPT-User",
@@ -1249,7 +1340,7 @@ export const analyzeUrl = createServerFn({ method: "POST" })
       semanticCheck,
       headingsCheck,
       htmlLangCheck,
-    ];
+    ].map(enrichCheckMetadata);
 
     const { rawScore, score, capped, capReason, categoryScores } =
       scoreFromChecks(checks, { isNoindex, allMajorAiBotsBlocked });

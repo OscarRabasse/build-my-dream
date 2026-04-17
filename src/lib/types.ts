@@ -48,6 +48,9 @@ export interface CheckResult {
   whyItMatters?: string;
   potentialScoreGain?: number;
   isBonus?: boolean;
+  businessImpact?: string;
+  goodExample?: { label: string; url: string };
+  templateLink?: string;
 }
 
 export interface CategoryScore {

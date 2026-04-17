@@ -22,6 +22,9 @@ const SEVERITY_CLASS: Record<Severity, string> = {
 
 export function ResultCard({ check }: { check: CheckResult }) {
   const showSnippet = check.codeSnippet && check.status !== "green";
+  const hasExampleBlock =
+    check.status !== "green" &&
+    (check.businessImpact || check.goodExample || check.templateLink);
   return (
     <div className="frosted-surface rounded-xl p-5 blue-glow-ring">
       <div className="flex items-center gap-2 flex-wrap">
@@ -73,6 +76,47 @@ export function ResultCard({ check }: { check: CheckResult }) {
         <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 text-xs font-mono text-foreground">
           {check.codeSnippet}
         </pre>
+      )}
+      {hasExampleBlock && (
+        <details className="mt-3 rounded-lg border border-border/40 bg-foreground/[0.02]">
+          <summary className="cursor-pointer px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+            Exemple + modèle
+          </summary>
+          <div className="px-3 pb-3 pt-1 space-y-2 text-sm">
+            {check.businessImpact && (
+              <p className="text-foreground/85 leading-relaxed">
+                <span className="font-semibold text-foreground">Ce que ça te coûte :</span>{" "}
+                {check.businessImpact}
+              </p>
+            )}
+            {check.goodExample && (
+              <p className="text-foreground/85">
+                <span className="font-semibold text-foreground">Site qui le fait bien :</span>{" "}
+                <a
+                  href={check.goodExample.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {check.goodExample.label}
+                </a>
+              </p>
+            )}
+            {check.templateLink && (
+              <p className="text-foreground/85">
+                <span className="font-semibold text-foreground">Doc / modèle officiel :</span>{" "}
+                <a
+                  href={check.templateLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline break-all"
+                >
+                  {check.templateLink}
+                </a>
+              </p>
+            )}
+          </div>
+        </details>
       )}
     </div>
   );
