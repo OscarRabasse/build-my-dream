@@ -8,6 +8,8 @@ import type {
   CheckFinding,
   CheckResult,
   CheckStatus,
+  RichActionItem,
+  RichDiagnostic,
   Severity,
 } from "@/lib/types";
 
@@ -977,51 +979,82 @@ async function fetchRobotsTxt(
   }
 }
 
+interface SynthesizeResult {
+  diagnostic: string;
+  actions: ActionItem[];
+  richDiagnostic?: RichDiagnostic;
+  richActions?: RichActionItem[];
+  nextSteps?: string;
+}
+
 async function synthesize(
   url: string,
   title: string,
   score: number,
   checks: CheckResult[]
-): Promise<{ diagnostic: string; actions: ActionItem[] }> {
-  const fallback = { diagnostic: "Synthèse indisponible.", actions: [] };
+): Promise<SynthesizeResult> {
+  const fallback: SynthesizeResult = { diagnostic: "Synthèse indisponible.", actions: [] };
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return { diagnostic: "Synthèse indisponible (clé API manquante).", actions: [] };
+  if (!apiKey)
+    return { diagnostic: "Synthèse indisponible (clé API manquante).", actions: [] };
 
   const statusMap = { green: "🟢 Vert", orange: "🟠 Orange", red: "🔴 Rouge" };
   const checksText = checks
-    .map((c) => `- ${c.name} : ${statusMap[c.status]} (${c.points}/${c.maxPoints} pts) — ${c.explanation}`)
+    .map(
+      (c) =>
+        `- ${c.name} : ${statusMap[c.status]} (${c.points}/${c.maxPoints} pts, gain potentiel ${c.potentialScoreGain ?? 0} pts) — ${c.explanation}`
+    )
     .join("\n");
 
-  const prompt = `Tu es un expert en optimisation web pour les crawlers IA (ChatGPT Search, Perplexity, Claude, Gemini). Voici les resultats d'audit d'un site :
+  const prompt = `Tu es consultant en visibilité IA pour les PME B2B françaises. Tu rédiges un mini-rapport pour Hugo, responsable marketing d'une PME de services B2B (cabinet de conseil, cabinet comptable, éditeur SaaS...). Hugo n'est PAS développeur — il doit défendre le sujet en interne face à son PDG. Ton objectif : qu'il reparte avec de quoi lancer un vrai chantier, pas juste un score.
 
-URL : ${url}
-Titre : ${title}
-Score : ${score}/100
+Contexte site :
+- URL : ${url}
+- Titre : ${title}
+- Score global : ${score}/100
 
-Checks :
+Résultats des checks :
 ${checksText}
 
-Reponds UNIQUEMENT avec un objet JSON valide (pas de markdown, pas de code block, pas de texte avant ou apres) :
+Tu réponds UNIQUEMENT avec un objet JSON valide (pas de markdown, pas de code block, pas de texte avant ou après). Schéma exact :
+
 {
-  "diagnostic": "2-3 phrases en francais, direct, sans jargon, qui resument l'etat du site pour un responsable marketing non-technique. Commence directement par l'etat du site, pas par une politesse.",
+  "diagnostic": {
+    "headline": "Phrase punchy qui résume la situation en 8-12 mots, style titre d'article. Exemple : 'Ton site est invisible pour ChatGPT et Perplexity.'",
+    "paragraph": "Un vrai paragraphe de 130-170 mots en français, ton direct, tutoiement. Structure : ce qui va, ce qui ne va pas, et surtout pourquoi ça compte concrètement pour une PME B2B. Nomme des points précis observés sur ce site (pas du générique). Zéro jargon technique : ne dis pas 'balises meta' → dis 'la présentation de ton site dans les résultats'. Ne dis pas 'JSON-LD' → dis 'la fiche d'identité que Google et les IA lisent en priorité'.",
+    "businessImpact": "1 à 2 phrases sur ce que ce score coûte au business : leads perdus, appels d'offres ratés, crédibilité entamée. Chiffre quand c'est possible ('les sites comme le tien perdent X% de citations IA'). Sinon reste concret."
+  },
   "actions": [
     {
       "priority": 1,
-      "title": "Titre court de l'action (5-8 mots max)",
-      "reason": "Pourquoi c'est important, en 1 phrase.",
-      "impact": "+X points",
-      "checkName": "nom exact du check concerne"
+      "title": "Titre court de l'action (6-10 mots, commence par un verbe à l'infinitif). Exemple : 'Publier un fichier llms.txt dédié aux IA'.",
+      "problem": "1-2 phrases : ce qui ne va pas aujourd'hui sur CE site. Concret, observé, pas générique.",
+      "fix": "3-5 phrases : le correctif détaillé, en langage marketing. Hugo doit comprendre QUOI faire et par où commencer. Si c'est technique, il relaiera au dev/agence.",
+      "beforeAfterExample": "Exemple court et concret 'avant → après'. Ex : 'Avant : pas de balise title optimisée. Après : 'Cabinet XYZ — Audit RGPD pour PME industrielles | 120+ missions depuis 2010''.",
+      "estimatedGain": "Formulation orientée business (pas juste des points). Ex : 'Citations IA multipliées par 2 sur ton secteur' ou '+3 à 5 demandes qualifiées par mois'. Si difficile à chiffrer, dis 'Gain de crédibilité auprès des prospects qui vérifient l'entreprise sur ChatGPT'.",
+      "checklist": [
+        "3 à 5 items cochables, concrets, actionnables en autonomie ou à relayer à un prestataire.",
+        "Chaque item commence par un verbe à l'infinitif.",
+        "Reste haut niveau, pas de code à copier-coller."
+      ],
+      "linkedCheckNames": ["Nom EXACT du check tel qu'il apparaît dans la liste ci-dessus"],
+      "impactPoints": 15
     }
-  ]
+  ],
+  "nextSteps": "1-2 phrases : par quoi Hugo devrait commencer concrètement cette semaine. Directif, motivant, tutoiement."
 }
 
-Regles :
-- Maximum 3 actions, ordonnees par impact decroissant (les checks qui font perdre le plus de points d'abord).
-- Ne propose que des actions pour les checks qui ne sont PAS verts.
-- Si tout est vert, le tableau actions est vide.
-- Le champ "impact" doit correspondre aux points reellement perdus pour ce check.
-- Pas de jargon technique. Hugo est responsable marketing, pas developpeur.`;
+Règles strictes :
+- Entre 3 et 5 actions, ordonnées par impact décroissant (priorité 1 = celle qui fait gagner le plus de points ou qui débloque le plus de visibilité).
+- Ne propose que des actions pour les checks 🟠 ou 🔴. Ignore les 🟢.
+- Si TOUT est vert : "actions" est un tableau vide, "nextSteps" devient "Ton site est déjà bien lu par les IA. Maintiens le cap et refais l'audit tous les 3 mois."
+- "impactPoints" = le nombre réel de points récupérables sur ce check (potentiel de gain).
+- "linkedCheckNames" : utilise EXACTEMENT les noms de checks fournis ci-dessus, sans les modifier.
+- Français exclusivement. Tutoiement de Hugo. Ton direct, pas commercial, pas paternaliste.
+- INTERDIT : "il convient", "il est recommandé", "dans le cadre de", "afin de", "vous". Utilise : "tu gagnerais à", "ça va te permettre de", "le vrai problème c'est que".
+- Pas d'emojis dans les textes (le JSON parse mal).
+- JAMAIS de formules type "j'espère que ce diagnostic vous sera utile".`;
 
   try {
     const anthropicUrl =
@@ -1036,8 +1069,8 @@ Regles :
           "AI-Readability-Checker/1.0 (+https://build-my-dream-224.lovable.app)",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 600,
+        model: "claude-sonnet-4-6",
+        max_tokens: 2500,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -1059,7 +1092,6 @@ Regles :
     const responseText = (data.content?.[0]?.text as string) || "";
     if (!responseText) return fallback;
 
-    // Strip markdown code fences if Claude wrapped the JSON
     const cleanedText = responseText
       .replace(/^```(?:json)?\s*\n?/i, "")
       .replace(/\n?```\s*$/i, "")
@@ -1067,16 +1099,66 @@ Regles :
 
     try {
       const parsed = JSON.parse(cleanedText);
+
+      const richDiagnostic: RichDiagnostic | undefined =
+        parsed.diagnostic && typeof parsed.diagnostic === "object"
+          ? {
+              headline: String(parsed.diagnostic.headline ?? ""),
+              paragraph: String(parsed.diagnostic.paragraph ?? ""),
+              businessImpact: String(parsed.diagnostic.businessImpact ?? ""),
+            }
+          : undefined;
+
+      const richActions: RichActionItem[] = Array.isArray(parsed.actions)
+        ? parsed.actions.map((a: Record<string, unknown>, i: number) => ({
+            priority: typeof a.priority === "number" ? a.priority : i + 1,
+            title: String(a.title ?? ""),
+            problem: String(a.problem ?? ""),
+            fix: String(a.fix ?? ""),
+            beforeAfterExample: String(a.beforeAfterExample ?? ""),
+            estimatedGain: String(a.estimatedGain ?? ""),
+            checklist: Array.isArray(a.checklist)
+              ? (a.checklist as unknown[]).map((x) => String(x))
+              : [],
+            linkedCheckNames: Array.isArray(a.linkedCheckNames)
+              ? (a.linkedCheckNames as unknown[]).map((x) => String(x))
+              : [],
+            impactPoints: typeof a.impactPoints === "number" ? a.impactPoints : 0,
+          }))
+        : [];
+
+      // Legacy fields for backward compat with current UI (until L2+ refactor)
+      const legacyDiagnostic = richDiagnostic
+        ? [richDiagnostic.headline, richDiagnostic.paragraph, richDiagnostic.businessImpact]
+            .filter((s) => s && s.trim().length > 0)
+            .join("\n\n")
+        : typeof parsed.diagnostic === "string"
+          ? parsed.diagnostic
+          : cleanedText;
+
+      const legacyActions: ActionItem[] = richActions.map((a) => ({
+        priority: a.priority,
+        title: a.title,
+        reason: a.problem,
+        impact: a.estimatedGain || `+${a.impactPoints} points`,
+        checkName: a.linkedCheckNames[0] ?? "",
+      }));
+
       return {
-        diagnostic: parsed.diagnostic || cleanedText,
-        actions: Array.isArray(parsed.actions) ? parsed.actions : [],
+        diagnostic: legacyDiagnostic,
+        actions: legacyActions,
+        richDiagnostic,
+        richActions,
+        nextSteps: typeof parsed.nextSteps === "string" ? parsed.nextSteps : undefined,
       };
     } catch {
-      // Fallback: use raw text as diagnostic, no action plan
       return { diagnostic: responseText, actions: [] };
     }
   } catch (e) {
-    console.log("[SYNTHESIS ERROR] Anthropic call failed:", e instanceof Error ? e.message : e);
+    console.log(
+      "[SYNTHESIS ERROR] Anthropic call failed:",
+      e instanceof Error ? e.message : e
+    );
     return fallback;
   }
 }
@@ -1182,7 +1264,8 @@ export const analyzeUrl = createServerFn({ method: "POST" })
     const v = verdict(score);
 
     const title = (metadata.title as string) || url;
-    const { diagnostic, actions } = await synthesize(url, title, score, checks);
+    const { diagnostic, actions, richDiagnostic, richActions, nextSteps } =
+      await synthesize(url, title, score, checks);
 
     return {
       url,
@@ -1195,6 +1278,9 @@ export const analyzeUrl = createServerFn({ method: "POST" })
       checks,
       categoryScores,
       actionPlan: actions.length > 0 ? actions : undefined,
+      richDiagnostic,
+      richActionPlan: richActions && richActions.length > 0 ? richActions : undefined,
+      nextSteps,
       siteTitle: siteCtx.title || undefined,
       siteDescription: siteCtx.description || undefined,
       screenshotUrl: screenshotUrl || undefined,

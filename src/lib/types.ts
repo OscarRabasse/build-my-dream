@@ -16,6 +16,24 @@ export interface ActionItem {
   checkName: string;
 }
 
+export interface RichDiagnostic {
+  headline: string;
+  paragraph: string;
+  businessImpact: string;
+}
+
+export interface RichActionItem {
+  priority: number;
+  title: string;
+  problem: string;
+  fix: string;
+  beforeAfterExample: string;
+  estimatedGain: string;
+  checklist: string[];
+  linkedCheckNames: string[];
+  impactPoints: number;
+}
+
 export interface CheckResult {
   name: string;
   status: CheckStatus;
@@ -51,6 +69,9 @@ export interface AnalysisResult {
   checks: CheckResult[];
   categoryScores: CategoryScore[];
   actionPlan?: ActionItem[];
+  richDiagnostic?: RichDiagnostic;
+  richActionPlan?: RichActionItem[];
+  nextSteps?: string;
   siteTitle?: string;
   siteDescription?: string;
   screenshotUrl?: string;
