@@ -1254,6 +1254,60 @@ Règles strictes :
   }
 }
 
+function extractAiReadableText(
+  rawHtml: string,
+  metadata: Record<string, unknown>
+): string {
+  const cleaned = rawHtml
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<svg[\s\S]*?<\/svg>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<aside[\s\S]*?<\/aside>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+
+  const decode = (s: string) =>
+    s
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const lines: string[] = [];
+
+  const title = (metadata.title as string) || "";
+  if (title) lines.push(`# ${title}`);
+
+  const description =
+    (metadata.description as string) ||
+    (metadata.ogDescription as string) ||
+    "";
+  if (description) lines.push(description);
+
+  if (lines.length > 0) lines.push("");
+
+  const contentRe = /<(h1|h2|h3|p)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = contentRe.exec(cleaned)) !== null) {
+    const tag = m[1].toLowerCase();
+    const text = decode(m[2]);
+    if (!text || text.length < 3) continue;
+    if (tag === "h1") lines.push(`## ${text}`);
+    else if (tag === "h2") lines.push(`### ${text}`);
+    else if (tag === "h3") lines.push(`#### ${text}`);
+    else if (text.length > 20) lines.push(text);
+  }
+
+  return lines.join("\n").trim().slice(0, 4000);
+}
+
 export const analyzeUrl = createServerFn({ method: "POST" })
   .inputValidator(z.object({ url: z.string().url() }))
   .handler(async ({ data }): Promise<AnalysisResult> => {
@@ -1305,6 +1359,7 @@ export const analyzeUrl = createServerFn({ method: "POST" })
       .replace(/\n{3,}/g, "\n\n")
       .trim();
     const rawHtmlPreview = rawHtmlStripped ? rawHtmlStripped.slice(0, 3500) : undefined;
+    const aiReadableText = rawHtml ? extractAiReadableText(rawHtml, metadata) : undefined;
 
     const langMatch = rawHtml.match(/<html[^>]*\blang\s*=\s*["']([^"']+)["']/i);
     const siteCtx: SiteContext = {
@@ -1376,5 +1431,6 @@ export const analyzeUrl = createServerFn({ method: "POST" })
       siteDescription: siteCtx.description || undefined,
       screenshotUrl: screenshotUrl || undefined,
       rawHtmlPreview: rawHtmlPreview || undefined,
+      aiReadableText: aiReadableText || undefined,
     };
   });

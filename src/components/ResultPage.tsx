@@ -35,7 +35,7 @@ export function ResultPage({ result, onReset }: ResultPageProps) {
 
       <HumanVsAi
         screenshotUrl={result.screenshotUrl}
-        rawHtmlPreview={result.rawHtmlPreview}
+        aiReadableText={result.aiReadableText}
         url={result.url}
       />
 

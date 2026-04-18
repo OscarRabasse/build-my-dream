@@ -79,4 +79,5 @@ export interface AnalysisResult {
   siteDescription?: string;
   screenshotUrl?: string;
   rawHtmlPreview?: string;
+  aiReadableText?: string;
 }

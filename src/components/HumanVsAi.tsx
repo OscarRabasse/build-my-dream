@@ -1,18 +1,17 @@
 import { useState } from "react";
-import { Eye, Bot } from "lucide-react";
+import { Eye } from "lucide-react";
+import { AiReadingPanel } from "./AiReadingPanel";
 
 interface HumanVsAiProps {
   screenshotUrl?: string;
-  rawHtmlPreview?: string;
+  aiReadableText?: string;
   url: string;
 }
 
-export function HumanVsAi({ screenshotUrl, rawHtmlPreview, url }: HumanVsAiProps) {
+export function HumanVsAi({ screenshotUrl, aiReadableText, url }: HumanVsAiProps) {
   const [screenshotError, setScreenshotError] = useState(false);
 
-  if (!screenshotUrl && !rawHtmlPreview) return null;
-
-  const isTruncated = rawHtmlPreview && rawHtmlPreview.length >= 3500;
+  if (!screenshotUrl && !aiReadableText) return null;
 
   return (
     <div className="mb-8">
@@ -45,22 +44,11 @@ export function HumanVsAi({ screenshotUrl, rawHtmlPreview, url }: HumanVsAiProps
 
         {/* Panneau droit : IA */}
         <div className="frosted-surface rounded-xl p-4 elevated-card">
-          <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground mb-3">
-            <Bot size={14} />
-            Ce qu'une IA voit
-          </p>
-          {rawHtmlPreview ? (
-            <div className="relative h-64">
-              <pre className="h-full overflow-y-auto rounded-lg bg-muted p-3 text-xs font-mono text-foreground/80 leading-relaxed whitespace-pre-wrap break-all">
-                {rawHtmlPreview}
-              </pre>
-              {isTruncated && (
-                <div className="absolute bottom-0 left-0 right-0 h-12 rounded-b-lg bg-gradient-to-t from-muted to-transparent pointer-events-none" />
-              )}
-            </div>
+          {aiReadableText ? (
+            <AiReadingPanel text={aiReadableText} />
           ) : (
             <div className="flex items-center justify-center h-64 rounded-lg bg-muted/50 text-sm text-muted-foreground text-center px-4">
-              Aperçu du code source indisponible
+              Aperçu indisponible
             </div>
           )}
         </div>
