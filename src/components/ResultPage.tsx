@@ -5,6 +5,7 @@ import { CtaPixweb } from "./CtaPixweb";
 import { HumanVsAi } from "./HumanVsAi";
 import { DiagnosticPanel } from "./DiagnosticPanel";
 import { RichActionCard } from "./RichActionCard";
+import { LeadGenCta } from "./LeadGenCta";
 
 function stripMarkdown(text: string): string {
   return text
@@ -138,6 +139,9 @@ export function ResultPage({ result, onReset }: ResultPageProps) {
           )}
         </section>
       )}
+
+      {/* CTA lead-gen contextuel (score < 70) */}
+      <LeadGenCta score={result.score} />
 
       {/* 4. Ce que l'IA lit */}
       <section id="ai-reading" className="scroll-mt-14">
